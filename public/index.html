@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="de" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Webbasierter Pflegerechner: Tropfgeschwindigkeit, Medikamentendosierung, BMI, Flüssigkeitsbilanz und mehr.">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self';">
+  <meta http-equiv="X-Content-Type-Options" content="nosniff">
+  <meta name="referrer" content="no-referrer">
+  <title>Schwesternhelfer – Pflegerechner</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>💧 Schwesternhelfer</h1>
+      <p class="subtitle">Pflegerechner für den Stationsalltag</p>
+    </header>
+
+    <nav class="tab-nav" id="tabNav" role="tablist" aria-label="Rechner-Auswahl">
+      <button class="tab-btn active" data-tab="tropf" role="tab" aria-selected="true" aria-controls="tab-tropf">Tropfgeschwindigkeit</button>
+      <button class="tab-btn" data-tab="medikament" role="tab" aria-selected="false" aria-controls="tab-medikament">Medikamentendosierung</button>
+      <button class="tab-btn" data-tab="koerpergewicht" role="tab" aria-selected="false" aria-controls="tab-koerpergewicht">Gewichtsbezogene Dosierung</button>
+      <button class="tab-btn" data-tab="konzentration" role="tab" aria-selected="false" aria-controls="tab-konzentration">Konzentration</button>
+      <button class="tab-btn" data-tab="perfusor" role="tab" aria-selected="false" aria-controls="tab-perfusor">Perfusor (ml/h)</button>
+      <button class="tab-btn" data-tab="bmi" role="tab" aria-selected="false" aria-controls="tab-bmi">BMI</button>
+      <button class="tab-btn" data-tab="bilanz" role="tab" aria-selected="false" aria-controls="tab-bilanz">Flüssigkeitsbilanz</button>
+      <button class="tab-btn" data-tab="prozent" role="tab" aria-selected="false" aria-controls="tab-prozent">Prozentrechnung</button>
+      <button class="tab-btn" data-tab="dreisatz" role="tab" aria-selected="false" aria-controls="tab-dreisatz">Dreisatz</button>
+      <button class="tab-btn" data-tab="theorie" role="tab" aria-selected="false" aria-controls="tab-theorie">Theorie &amp; Formeln</button>
+    </nav>
+
+    <main>
+      <!-- 1. Tropfgeschwindigkeit -->
+      <section class="tab-content active" id="tab-tropf" role="tabpanel" aria-labelledby="tab-tropf">
+        <h2>Tropfgeschwindigkeit & Infusionsgeschwindigkeit</h2>
+        <form id="calcTropf">
+          <div class="form-group">
+            <label for="tropf-volume">Volumen (mL)</label>
+            <input type="number" id="tropf-volume" min="1" step="1" placeholder="z.B. 1000" required>
+          </div>
+          <div class="form-group">
+            <label for="tropf-time">Infusionszeit</label>
+            <div class="time-input">
+              <input type="number" id="tropf-time" min="1" step="1" placeholder="z.B. 8" required>
+              <label for="tropf-timeUnit" class="sr-only">Zeiteinheit</label>
+              <select id="tropf-timeUnit">
+                <option value="hours">Stunden</option>
+                <option value="minutes">Minuten</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="tropf-factor">Tropffaktor (gtt/mL)</label>
+            <select id="tropf-factor">
+              <option value="10">Makrotropf – 10 gtt/mL</option>
+              <option value="15">Makrotropf – 15 gtt/mL</option>
+              <option value="20" selected>Makrotropf – 20 gtt/mL</option>
+              <option value="60">Mikrotropf – 60 gtt/mL</option>
+            </select>
+          </div>
+          <button type="submit" class="btn">Berechnen</button>
+        </form>
+        <div id="tropf-results" class="results hidden">
+          <h3>Ergebnis</h3>
+          <div class="result-grid">
+            <div class="result-card">
+              <span class="result-value" id="tropf-dripRate">–</span>
+              <span class="result-label">Tropfen/min (gtt/min)</span>
+            </div>
+            <div class="result-card">
+              <span class="result-value" id="tropf-flowRate">–</span>
+              <span class="result-label">Flussrate (mL/h)</span>
+            </div>
+          </div>
+          <p class="result-note" id="tropf-note"></p>
+        </div>
+      </section>
+
+      <!-- 2. Medikamentendosierung -->
+      <section class="tab-content" id="tab-medikament">
+        <h2>Medikamentendosierung</h2>
+        <p class="info-text">Formel: Menge zu geben = (verordnete Dosis ÷ vorhandene Dosis) × vorhandene Menge</p>
+        <form id="calcMedikament">
+          <div class="form-group">
+            <label for="med-verordnet">Verordnete Dosis (mg)</label>
+            <input type="number" id="med-verordnet" min="0.01" step="any" placeholder="z.B. 500" required>
+          </div>
+          <div class="form-group">
+            <label for="med-vorhanden">Vorhandene Dosis pro Einheit (mg)</label>
+            <input type="number" id="med-vorhanden" min="0.01" step="any" placeholder="z.B. 250" required>
+          </div>
+          <div class="form-group">
+            <label for="med-menge">Vorhandene Menge pro Einheit</label>
+            <div class="time-input">
+              <input type="number" id="med-menge" min="0.01" step="any" value="1" required>
+              <select id="med-einheit">
+                <option value="Tablette(n)">Tablette(n)</option>
+                <option value="mL">mL</option>
+                <option value="Ampulle(n)">Ampulle(n)</option>
+                <option value="Tropfen">Tropfen</option>
+              </select>
+            </div>
+          </div>
+          <button type="submit" class="btn">Berechnen</button>
+        </form>
+        <div id="med-results" class="results hidden">
+          <h3>Ergebnis</h3>
+          <div class="result-grid single">
+            <div class="result-card">
+              <span class="result-value" id="med-result">–</span>
+              <span class="result-label" id="med-result-label">Einheiten</span>
+            </div>
+          </div>
+          <p class="result-note" id="med-note"></p>
+        </div>
+      </section>
+
+      <!-- 3. Körpergewichtbezogene Dosierung -->
+      <section class="tab-content" id="tab-koerpergewicht">
+        <h2>Gewichtsbezogene Dosierung</h2>
+        <p class="info-text">Formel: Gesamtdosis = Dosierung (mg/kg) × Körpergewicht (kg)</p>
+        <form id="calcKoerpergewicht">
+          <div class="form-group">
+            <label for="kg-dosierung">Dosierung (mg/kg)</label>
+            <input type="number" id="kg-dosierung" min="0.001" step="any" placeholder="z.B. 10" required>
+          </div>
+          <div class="form-group">
+            <label for="kg-gewicht">Körpergewicht (kg)</label>
+            <input type="number" id="kg-gewicht" min="0.1" step="any" placeholder="z.B. 70" required>
+          </div>
+          <button type="submit" class="btn">Berechnen</button>
+        </form>
+        <div id="kg-results" class="results hidden">
+          <h3>Ergebnis</h3>
+          <div class="result-grid single">
+            <div class="result-card">
+              <span class="result-value" id="kg-result">–</span>
+              <span class="result-label">Gesamtdosis (mg)</span>
+            </div>
+          </div>
+          <p class="result-note" id="kg-note"></p>
+        </div>
+      </section>
+
+      <!-- 4. Konzentrationsberechnung -->
+      <section class="tab-content" id="tab-konzentration">
+        <h2>Konzentrationsberechnung</h2>
+        <p class="info-text">Formel: Konzentration = Wirkstoffmenge ÷ Volumen</p>
+        <form id="calcKonzentration">
+          <div class="form-group">
+            <label for="konz-wirkstoff">Wirkstoffmenge (mg)</label>
+            <input type="number" id="konz-wirkstoff" min="0.01" step="any" placeholder="z.B. 500" required>
+          </div>
+          <div class="form-group">
+            <label for="konz-volumen">Volumen (mL)</label>
+            <input type="number" id="konz-volumen" min="0.01" step="any" placeholder="z.B. 10" required>
+          </div>
+          <button type="submit" class="btn">Berechnen</button>
+        </form>
+        <div id="konz-results" class="results hidden">
+          <h3>Ergebnis</h3>
+          <div class="result-grid single">
+            <div class="result-card">
+              <span class="result-value" id="konz-result">–</span>
+              <span class="result-label">Konzentration (mg/mL)</span>
+            </div>
+          </div>
+          <p class="result-note" id="konz-note"></p>
+        </div>
+      </section>
+
+      <!-- 5. Perfusor / Spritzenpumpe -->
+      <section class="tab-content" id="tab-perfusor">
+        <h2>Perfusor / Spritzenpumpe (mL/h)</h2>
+        <p class="info-text">Formel: mL/h = gewünschte Dosis pro Stunde ÷ Konzentration</p>
+        <form id="calcPerfusor">
+          <div class="form-group">
+            <label for="perf-dosis">Gewünschte Dosis pro Stunde (mg/h)</label>
+            <input type="number" id="perf-dosis" min="0.001" step="any" placeholder="z.B. 50" required>
+          </div>
+          <div class="form-group">
+            <label for="perf-konz">Konzentration der Lösung (mg/mL)</label>
+            <input type="number" id="perf-konz" min="0.001" step="any" placeholder="z.B. 10" required>
+          </div>
+          <button type="submit" class="btn">Berechnen</button>
+        </form>
+        <div id="perf-results" class="results hidden">
+          <h3>Ergebnis</h3>
+          <div class="result-grid single">
+            <div class="result-card">
+              <span class="result-value" id="perf-result">–</span>
+              <span class="result-label">Laufrate (mL/h)</span>
+            </div>
+          </div>
+          <p class="result-note" id="perf-note"></p>
+        </div>
+      </section>
+
+      <!-- 6. BMI -->
+      <section class="tab-content" id="tab-bmi">
+        <h2>BMI (Body Mass Index)</h2>
+        <p class="info-text">Formel: BMI = Gewicht (kg) ÷ Größe (m)²</p>
+        <form id="calcBmi">
+          <div class="form-group">
+            <label for="bmi-gewicht">Gewicht (kg)</label>
+            <input type="number" id="bmi-gewicht" min="1" step="any" placeholder="z.B. 75" required>
+          </div>
+          <div class="form-group">
+            <label for="bmi-groesse">Größe (cm)</label>
+            <input type="number" id="bmi-groesse" min="50" step="1" placeholder="z.B. 175" required>
+          </div>
+          <button type="submit" class="btn">Berechnen</button>
+        </form>
+        <div id="bmi-results" class="results hidden">
+          <h3>Ergebnis</h3>
+          <div class="result-grid">
+            <div class="result-card">
+              <span class="result-value" id="bmi-result">–</span>
+              <span class="result-label">BMI (kg/m²)</span>
+            </div>
+            <div class="result-card">
+              <span class="result-value" id="bmi-category">–</span>
+              <span class="result-label">Kategorie</span>
+            </div>
+          </div>
+          <p class="result-note" id="bmi-note"></p>
+        </div>
+      </section>
+
+      <!-- 7. Flüssigkeitsbilanz -->
+      <section class="tab-content" id="tab-bilanz">
+        <h2>Flüssigkeitsbilanz</h2>
+        <p class="info-text">Formel: Bilanz = Einfuhr − Ausfuhr</p>
+        <form id="calcBilanz">
+          <div class="form-group">
+            <label for="bil-einfuhr">Einfuhr (mL)</label>
+            <input type="number" id="bil-einfuhr" min="0" step="1" placeholder="z.B. 2500" required>
+          </div>
+          <div class="form-group">
+            <label for="bil-ausfuhr">Ausfuhr (mL)</label>
+            <input type="number" id="bil-ausfuhr" min="0" step="1" placeholder="z.B. 1900" required>
+          </div>
+          <button type="submit" class="btn">Berechnen</button>
+        </form>
+        <div id="bil-results" class="results hidden">
+          <h3>Ergebnis</h3>
+          <div class="result-grid single">
+            <div class="result-card">
+              <span class="result-value" id="bil-result">–</span>
+              <span class="result-label">Bilanz (mL)</span>
+            </div>
+          </div>
+          <p class="result-note" id="bil-note"></p>
+        </div>
+      </section>
+
+      <!-- 8. Prozentrechnung -->
+      <section class="tab-content" id="tab-prozent">
+        <h2>Prozentrechnung</h2>
+        <p class="info-text">Formel: Prozentwert = (Prozentsatz ÷ 100) × Grundwert</p>
+        <form id="calcProzent">
+          <div class="form-group">
+            <label for="proz-satz">Prozentsatz (%)</label>
+            <input type="number" id="proz-satz" min="0" step="any" placeholder="z.B. 5" required>
+          </div>
+          <div class="form-group">
+            <label for="proz-grund">Grundwert (mL / mg / Einheiten)</label>
+            <input type="number" id="proz-grund" min="0" step="any" placeholder="z.B. 400" required>
+          </div>
+          <button type="submit" class="btn">Berechnen</button>
+        </form>
+        <div id="proz-results" class="results hidden">
+          <h3>Ergebnis</h3>
+          <div class="result-grid single">
+            <div class="result-card">
+              <span class="result-value" id="proz-result">–</span>
+              <span class="result-label">Prozentwert</span>
+            </div>
+          </div>
+          <p class="result-note" id="proz-note"></p>
+        </div>
+      </section>
+
+      <!-- 9. Dreisatz -->
+      <section class="tab-content" id="tab-dreisatz">
+        <h2>Dreisatz</h2>
+        <p class="info-text">Wenn A → B, dann X → ?</p>
+        <form id="calcDreisatz">
+          <div class="form-group">
+            <label for="drei-a">Bekannte Menge A (z.B. 1 Ampulle)</label>
+            <input type="number" id="drei-a" min="0.001" step="any" placeholder="z.B. 1" required>
+          </div>
+          <div class="form-group">
+            <label for="drei-b">Enthält / entspricht B (z.B. 100 mg)</label>
+            <input type="number" id="drei-b" min="0.001" step="any" placeholder="z.B. 100" required>
+          </div>
+          <div class="form-group">
+            <label for="drei-x">Gesucht: Wieviel von A für diesen Wert von B?</label>
+            <input type="number" id="drei-x" min="0.001" step="any" placeholder="z.B. 25" required>
+          </div>
+          <button type="submit" class="btn">Berechnen</button>
+        </form>
+        <div id="drei-results" class="results hidden">
+          <h3>Ergebnis</h3>
+          <div class="result-grid single">
+            <div class="result-card">
+              <span class="result-value" id="drei-result">–</span>
+              <span class="result-label">Benötigte Menge von A</span>
+            </div>
+          </div>
+          <p class="result-note" id="drei-note"></p>
+        </div>
+      </section>
+
+      <!-- 10. Theorie -->
+      <section class="tab-content" id="tab-theorie">
+        <h2>Theorie & Formeln</h2>
+
+        <h3>Die drei wichtigsten Formeln im Pflegealltag</h3>
+        <div class="formula-box">
+          <h3>1. Medikamentenberechnung</h3>
+          <code>Menge = (Soll ÷ Ist) × vorhandene Menge</code>
+        </div>
+        <div class="formula-box">
+          <h3>2. Infusionsgeschwindigkeit</h3>
+          <code>mL/h = Volumen ÷ Zeit (h)</code>
+        </div>
+        <div class="formula-box">
+          <h3>3. Gewichtsbezogene Dosierung</h3>
+          <code>Gesamtdosis = mg/kg × Körpergewicht</code>
+        </div>
+
+        <h3>Tropfgeschwindigkeit</h3>
+        <div class="formula-box">
+          <code>gtt/min = (Volumen in mL × Tropffaktor) ÷ Zeit in Minuten</code>
+        </div>
+        <div class="formula-box">
+          <code>mL/h = Volumen ÷ (Zeit in Minuten ÷ 60)</code>
+        </div>
+
+        <h3>Tropffaktoren</h3>
+        <div class="info-grid">
+          <div class="info-card">
+            <h3>Makrotropf (10, 15, 20 gtt/mL)</h3>
+            <p>Größere Tropfen für schnelle Verabreichung: Volumentherapie, Blutprodukte, Erhaltungslösungen bei Erwachsenen.</p>
+          </div>
+          <div class="info-card">
+            <h3>Mikrotropf (60 gtt/mL)</h3>
+            <p>Kleinere Tropfen für präzise Steuerung: Pädiatrie, Neonatologie, Intensivmedizin. Bei 60 gtt/mL gilt: gtt/min = mL/h.</p>
+          </div>
+        </div>
+
+        <h3>Konzentration & Perfusor</h3>
+        <div class="formula-box">
+          <h3>Konzentration</h3>
+          <code>mg/mL = Wirkstoffmenge (mg) ÷ Volumen (mL)</code>
+        </div>
+        <div class="formula-box">
+          <h3>Perfusor-Laufrate</h3>
+          <code>mL/h = gewünschte Dosis/h ÷ Konzentration (mg/mL)</code>
+        </div>
+
+        <h3>BMI</h3>
+        <div class="formula-box">
+          <code>BMI = Gewicht (kg) ÷ Größe (m)²</code>
+        </div>
+
+        <h3>Flüssigkeitsbilanz</h3>
+        <div class="formula-box">
+          <code>Bilanz = Einfuhr − Ausfuhr</code>
+        </div>
+
+        <h3>Prozentrechnung</h3>
+        <div class="formula-box">
+          <code>Prozentwert = (Prozentsatz ÷ 100) × Grundwert</code>
+        </div>
+
+        <h3>Dreisatz</h3>
+        <div class="formula-box">
+          <code>Wenn A enthält B, dann für X benötigt man: (X ÷ B) × A</code>
+        </div>
+
+        <h3>Nützliche Umrechnungen</h3>
+        <div class="info-grid">
+          <div class="info-card">
+            <h3>Gewicht</h3>
+            <p>1 g = 1000 mg<br>1 mg = 1000 µg<br>1 kg = 1000 g</p>
+          </div>
+          <div class="info-card">
+            <h3>Volumen & Zeit</h3>
+            <p>1 L = 1000 mL<br>1 h = 60 min<br>1 min = 60 s</p>
+          </div>
+        </div>
+
+        <h3>mL/h vs. gtt/min</h3>
+        <p><strong>mL/h</strong> – Volumen pro Stunde, eingestellt an elektronischen Pumpen. Unabhängig vom Besteck.</p>
+        <p><strong>gtt/min</strong> – Tropfen pro Minute, gezählt bei Schwerkraftinfusionen. Abhängig vom Tropffaktor.</p>
+        <p>Umrechnung: <code>gtt/min = mL/h × Tropffaktor ÷ 60</code></p>
+      </section>
+    </main>
+
+    <footer>
+      <p>⚠️ Dieses Tool dient ausschließlich zu Schulungszwecken. Alle Berechnungen vor der klinischen Anwendung gegenprüfen.</p>
+    </footer>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
