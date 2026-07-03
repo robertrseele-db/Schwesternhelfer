@@ -107,6 +107,28 @@ section,
   border: 1px solid #bfdbfe;
 }
 
+.info-box {
+  margin-bottom: 1.5rem;
+  padding: 1.25rem;
+  background: #f8fafc;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+}
+
+.info-box h3:first-child {
+  margin-bottom: 0.75rem;
+  color: var(--primary);
+}
+
+.info-box p {
+  margin-bottom: 0.75rem;
+  font-size: 0.93rem;
+}
+
+.info-box .info-grid {
+  margin-top: 0.75rem;
+}
+
 h2 {
   margin-bottom: 1rem;
   color: var(--text);
